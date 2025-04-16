@@ -150,7 +150,7 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-MEDIA_URL = "/media/"
+MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 # Default primary key field type
@@ -171,3 +171,7 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 CORS_ALLOW_ALL_ORIGINS = False
+
+LOGIN_REDIRECT_URL = 'platform_for_sharing:home'
+LOGIN_URL = 'users:login'
+LOGOUT_REDIRECT_URL = 'platform_for_sharing:home'
