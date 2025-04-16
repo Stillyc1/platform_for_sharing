@@ -1,0 +1,41 @@
+{% load my_tags %}
+<header class="shadow p-3 mb-5 bg-body-tertiary rounded">
+    <div class="container">
+        <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+            <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+                <li><a href="{% url 'platform_for_sharing:home' %}"
+                       class="btn-hand">Главная</a></li>
+                {% if user.is_authenticated %}
+                <li><a href="{% url 'platform_for_sharing:ad_create' %}"
+                       class="btn-hand">Создать объявление</a></li>
+                <li><a href="{% url 'platform_for_sharing:ad_list' %}"
+                       class="btn-hand">Мои объявления</a></li>
+                <li><a href="{% url 'platform_for_sharing:exchange_list' %}"
+                       class="btn-hand">Мои обмены</a></li>
+                {% endif %}
+            </ul>
+
+            <div class="text-end">
+                {% if user.is_authenticated %}
+                <form method="post" action="{% url 'users:logout' %}" style="display: inline">
+                    {% csrf_token %}
+                    <div class="dropdown">
+                        <a href="#" class="d-flex align-items-center text-black text-decoration-none dropdown-toggle"
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                           <strong>{{ user.username }}</strong>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
+                            <li>
+                                <button type="submit" class="btn dropdown-item">Выйти</button>
+                            </li>
+                        </ul>
+                    </div>
+                </form>
+                {% else %}
+                <a class="btn-hand me-3" href="{% url 'users:login' %}">Войти</a>
+                <a class="btn-hand text-warning" href="{% url 'users:register' %}">Регистрация</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</header>

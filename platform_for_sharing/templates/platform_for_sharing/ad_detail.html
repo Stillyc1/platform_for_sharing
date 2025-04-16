@@ -1,0 +1,44 @@
+{% extends 'platform_for_sharing/includes/basic_design.html' %}
+{% load static %}
+{% block title %}Регистрация{% endblock %}
+
+{% block header %}
+{% include 'platform_for_sharing/includes/header_menu.html' %}
+<div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+    <h1 class="display-4">
+        {{ad.title}}
+    </h1>
+</div>
+
+{% endblock %}
+
+{% block content %}
+<div class="row text-center">
+    <div class="col-4"></div>
+    <div class="col-4 card mb-4 box-shadow text-center">
+        <div class="card-header">
+            <img src="{% if ad.image_url %}{{ ad.image_url }}{% else %}{% static 'platform_for_sharing/no_photo.jpg'%}{% endif %}" width="200" height="200" style="object-fit: cover;">
+            <h4 class="my-0 font-weight-normal">Категория: {{ ad.category|truncatechars:30 }}</h4>
+        </div>
+        <ul class="list-unstyled mt-3 mb-4 text-center m-3">
+            <li>- Номер объявления: {{ad.pk}}</li>
+            <li>- {{ad.description}}</li>
+            <li>- Состояние: {{ad.condition}}</li>
+            <li>- Дата создания: {{ad.created_at| date:"d M Y"}}</li>
+        </ul>
+        {% if ad.user == request.user %}
+            <a class="btn-hand" href="{% url 'platform_for_sharing:ad_update' ad.pk%}">
+                Изменить
+            </a>
+            <a class="btn-hand text-danger" href="{% url 'platform_for_sharing:ad_delete' ad.pk%}">
+                Удалить
+            </a>
+        {% else %}
+            <a class="btn btn-lg btn-block btn-outline-success" href="{% url 'platform_for_sharing:exchange_create' %}">
+                предложить обмен
+            </a>
+        {% endif %}
+    </div>
+    <div class="col-4"></div>
+</div>
+{% endblock %}

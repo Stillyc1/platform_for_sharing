@@ -1,0 +1,38 @@
+{% extends 'platform_for_sharing/includes/basic_design.html' %}
+{% block title %}Предложения об обмене{% endblock %}
+
+{% block header %}
+{% include 'platform_for_sharing/includes/header_menu.html' %}
+<div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+    <h1 class="display-4">SendMail Service</h1>
+    <p class="lead">Рассылки для отправки сообщений пользователям</p>
+</div>
+
+{% endblock %}
+
+{% block content %}
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th scope="col">№</th>
+            <th scope="col">Дата первой отправки</th>
+            <th scope="col">Дата окончания</th>
+            <th scope="col">Статус</th>
+            <th scope="col">Сообщение</th>
+            <th scope="col">Получатели</th>
+            <th scope="col"></th>
+            <th scope="col"></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for exchange in exchanges %}
+        <tr>
+            <td>{{ exchange.id }}</td>
+            <td width="100">{{exchange.ad_sender_id.title}}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
