@@ -1,0 +1,93 @@
+{% extends 'platform_for_sharing/includes/basic_design.html' %}
+{% block title %}Предложения об обмене{% endblock %}
+
+{% block header %}
+{% include 'platform_for_sharing/includes/header_menu.html' %}
+<div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+    <h1 class="display-4">Список обменов</h1>
+    <p class="lead">Посмотрите что вам предложили на обмен</p>
+</div>
+
+{% endblock %}
+
+{% block content %}
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th scope="col">№</th>
+            <th scope="col">Дата отправки</th>
+            <th scope="col">Дата решения</th>
+            <th scope="col">Статус</th>
+            <th scope="col">Сообщение</th>
+            <th scope="col">Что предлагают</th>
+            <th scope="col">Что забирают</th>
+            <th scope="col"></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for exchange in ad_receiver_id %}
+        <tr>
+            <td>{{exchange.id}}</td>
+            <td>{{exchange.created_at | date:"d.m.Y H:i"}}</td>
+            <td>{{exchange.updated_at | date:"d.m.Y H:i"}}</td>
+            <td>
+                {% if exchange.status == "ожидает" %}
+                    <a href="{% url 'platform_for_sharing:exchange_detail' exchange.pk%}" class="text-warning" style="text-decoration: none;">
+                        {{exchange.status}}
+                    </a>
+                {% elif exchange.status == "принят" %}
+                    <a href="{% url 'platform_for_sharing:exchange_detail' exchange.pk%}" class="text-success" style="text-decoration: none;">
+                        {{exchange.status}}
+                    </a>
+                {% else %}
+                    <a href="{% url 'platform_for_sharing:exchange_detail' exchange.pk%}" class="text-danger" style="text-decoration: none;">
+                    {{exchange.status}}
+                    </a>
+                {% endif %}
+            </td>
+            <td>{{exchange.comment|truncatechars:30}}</td>
+            <td>{{exchange.ad_sender_id}}</td>
+            <td>{{exchange.ad_receiver_id}}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+<div class="table-responsive mt-5">
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th scope="col">№</th>
+            <th scope="col">Дата отправки</th>
+            <th scope="col">Дата решения</th>
+            <th scope="col">Статус</th>
+            <th scope="col">Сообщение</th>
+            <th scope="col">Что меняем</th>
+            <th scope="col">На что меняем</th>
+            <th scope="col"></th>
+            <th scope="col"></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for exchange in ad_sender_id %}
+        <tr>
+            <td>{{exchange.id}}</td>
+            <td>{{exchange.created_at | date:"d.m.Y H:i"}}</td>
+            <td>{{exchange.updated_at | date:"d.m.Y H:i"}}</td>
+            {% if exchange.status == "ожидает" %}
+            <td class="text-warning">{{exchange.status}}</td>
+            {% elif exchange.status == "принят" %}
+            <td class="text-success">{{ exchange.status }}</td>
+            {% else %}
+            <td class="text-danger">{{ exchange.status }}</td>
+            {% endif %}
+            <td>{{exchange.comment|truncatechars:30}}</td>
+            <td>{{exchange.ad_sender_id}}</td>
+            <td>{{exchange.ad_receiver_id}}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

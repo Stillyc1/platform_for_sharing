@@ -1,0 +1,32 @@
+{% extends 'platform_for_sharing/includes/basic_design.html' %}
+{% load static %}
+{% block title %}Объявления{% endblock %}
+
+{% block header %}
+{% include 'platform_for_sharing/includes/header_menu.html' %}
+<div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+    <h1 class="display-4">Ваши объявления</h1>
+    <h5 class="display-8">Отдайте то, что вам <span style="color: #F00;">не нужно</span> и заберите то, что вам <span style="color: #77dd77;">необходимо</span>!</h5>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row text-center mt-5">
+    {% for ad in ads %}
+        <div class="col-6">
+            <a href="{% url 'platform_for_sharing:ad_detail' ad.pk%}" class="card mb-4 box-shadow" style="text-decoration: none;">
+                <div class="card-header">
+                    <img src="{% if ad.image_url %}{{ ad.image_url }}{% else %}{% static 'platform_for_sharing/no_photo.jpg'%}{% endif %}" width="200" height="200" style="object-fit: cover;">
+                    <h4 class="my-0 font-weight-normal">{{ ad.title }}</h4>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mt-3 mb-4 text-start m-3">
+                        <li>- {{ ad.description|truncatechars:30 }}</li>
+                        <li>- Категория: {{ ad.category|truncatechars:30 }}</li>
+                    </ul>
+                </div>
+            </a>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}
