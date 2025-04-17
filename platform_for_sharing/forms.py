@@ -36,14 +36,6 @@ class AdForm(ModelForm):
         fields = ('title', 'category', 'description', 'image_url', 'condition',)
         exclude = ('user',)
 
-    def clean_image_url(self):
-        """Валидация изображения"""
-        cleaned_data = super().clean()
-        image_url = cleaned_data.get('image_url')
-
-        if image_url and not re.search("https://\\S+", image_url):
-            self.add_error('image_url', f'Изображение должно быть ссылкой на фото и начинаться с https://')
-
 
 class ExchangeProposalForm(ModelForm):
 
@@ -59,7 +51,6 @@ class ExchangeProposalForm(ModelForm):
         })
         self.fields['ad_receiver_id'].widget.attrs.update({
             'class': 'form-control',
-            'aria-label': 'Disabled select example',
             'disabled': 'disabled',
         })
         self.fields['comment'].widget.attrs.update({

@@ -32,7 +32,7 @@ class ExchangeProposal(models.Model):
 
     ad_sender_id = models.ForeignKey(Ad, on_delete=models.CASCADE, related_name="senders", verbose_name="что меняем")
     ad_receiver_id = models.ForeignKey(Ad, on_delete=models.CASCADE, related_name="receivers",
-                                       verbose_name="на что меняем")
+                                       verbose_name="на что меняем", blank=True)
     comment = models.TextField(verbose_name="комментарий")
     status = models.CharField(max_length=8, choices=CHOICES, default="ожидает", verbose_name="статус")
     created_at = models.DateTimeField(auto_now_add=True)

@@ -34,7 +34,7 @@
                 Удалить
             </a>
         {% else %}
-            <a class="btn btn-lg btn-block btn-outline-success" href="{% url 'platform_for_sharing:exchange_create' %}">
+            <a class="btn btn-lg btn-block btn-outline-success" href="{% url 'platform_for_sharing:exchange_create' %}?ad_id={{ ad.id }}">
                 предложить обмен
             </a>
         {% endif %}

@@ -2,7 +2,7 @@ from django.urls import path
 
 from platform_for_sharing.apps import PlatformForSharingConfig
 from platform_for_sharing.views import HomeView, AdCreateView, AdDetailView, AdUpdateView, AdDeleteView, AdListView, \
-    ExchangeProposalCreateView, ExchangeProposalListView
+    ExchangeProposalCreateView, ExchangeProposalListView, ExchangeProposalDetailView
 
 app_name = PlatformForSharingConfig.name
 
@@ -16,5 +16,5 @@ urlpatterns = [
 
     path('exchange_list/', ExchangeProposalListView.as_view(), name='exchange_list'),
     path('exchange_create/', ExchangeProposalCreateView.as_view(), name='exchange_create'),
-
+    path('exchange_<int:pk>/', ExchangeProposalDetailView.as_view(), name='exchange_detail'),
 ]
