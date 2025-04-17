@@ -1,25 +1,27 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
-from django.http import HttpResponseForbidden, Http404
+from django.http import Http404, HttpResponseForbidden
 from django.shortcuts import redirect, render
-from django.urls import reverse_lazy, reverse
-from django.views.generic import CreateView, ListView, DetailView, UpdateView, DeleteView
+from django.urls import reverse, reverse_lazy
+from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
+                                  UpdateView)
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
-from rest_framework.generics import ListAPIView, CreateAPIView, UpdateAPIView
+from rest_framework.generics import CreateAPIView, ListAPIView, UpdateAPIView
 from rest_framework.viewsets import ModelViewSet
 
 from platform_for_sharing.forms import AdForm, ExchangeProposalForm
 from platform_for_sharing.models import Ad, ExchangeProposal
-from platform_for_sharing.serializers import AdSerializer, AdCreateSerializer, ExchangeProposalSerializer, \
-    ExchangeProposalUpdateSerializer
-from platform_for_sharing.services import AdUpdateOrDelete
+from platform_for_sharing.serializers import (AdCreateSerializer, AdSerializer,
+                                              ExchangeProposalSerializer,
+                                              ExchangeProposalUpdateSerializer)
 from users.permissions import IsOwner
 
 
 class HomeView(ListView):
     """Представление домашней страницы с выводом всех объявлений пользователя."""
+
     model = Ad
     template_name = "platform_for_sharing/home.html"
     context_object_name = "ads"
@@ -30,21 +32,21 @@ class HomeView(ListView):
             categories_list.append(obj.category)
 
         context = super().get_context_data(**kwargs)
-        context['categories'] = categories_list
+        context["categories"] = categories_list
         return context
 
     def get_queryset(self):
         qs = super().get_queryset()
 
-        category = self.request.GET.get('category')
-        conditions = self.request.GET.getlist('condition')
-        search = self.request.GET.get('search', '').strip()
+        category = self.request.GET.get("category")
+        conditions = self.request.GET.getlist("condition")
+        search = self.request.GET.get("search", "").strip()
 
         if search:
             qs = qs.filter(
                 Q(title__icontains=search) | Q(description__icontains=search)
             )
-        if category and category != 'Выберите категорию':
+        if category and category != "Выберите категорию":
             qs = qs.filter(category=category)
         if conditions:
             qs = qs.filter(condition__in=conditions)
@@ -54,6 +56,7 @@ class HomeView(ListView):
 
 class AdListView(LoginRequiredMixin, ListView):
     """Представление домашней страницы с выводом всех объявлений пользователя."""
+
     model = Ad
     template_name = "platform_for_sharing/ad_list.html"
     context_object_name = "ads"
@@ -66,6 +69,7 @@ class AdListView(LoginRequiredMixin, ListView):
 
 class AdCreateView(LoginRequiredMixin, CreateView):
     """Представление создания модели объявления."""
+
     model = Ad
     template_name = "platform_for_sharing/ad_create.html"
     context_object_name = "ad"
@@ -76,11 +80,12 @@ class AdCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse('platform_for_sharing:ad_detail', args=[self.object.pk])
+        return reverse("platform_for_sharing:ad_detail", args=[self.object.pk])
 
 
 class AdDetailView(LoginRequiredMixin, DetailView):
     """Представление просмотра объявления."""
+
     model = Ad
     template_name = "platform_for_sharing/ad_detail.html"
     context_object_name = "ad"
@@ -88,6 +93,7 @@ class AdDetailView(LoginRequiredMixin, DetailView):
 
 class AdUpdateView(LoginRequiredMixin, UpdateView):
     """Контроллер изменения объявления."""
+
     model = Ad
     template_name = "platform_for_sharing/ad_create.html"
     context_object_name = "ad_create"
@@ -97,9 +103,9 @@ class AdUpdateView(LoginRequiredMixin, UpdateView):
         try:
             return super().get(request, *args, **kwargs)
         except Http404:
-            return render(request, 'platform_for_sharing/403_or_404.html', status=404)
+            return render(request, "platform_for_sharing/403_or_404.html", status=404)
         except PermissionDenied:
-            return render(request, 'platform_for_sharing/403_or_404.html', status=403)
+            return render(request, "platform_for_sharing/403_or_404.html", status=403)
 
     def get_form_class(self):
         user = self.request.user
@@ -108,11 +114,12 @@ class AdUpdateView(LoginRequiredMixin, UpdateView):
         raise PermissionDenied
 
     def get_success_url(self):
-        return reverse('platform_for_sharing:ad_detail', args=[self.kwargs.get('pk')])
+        return reverse("platform_for_sharing:ad_detail", args=[self.kwargs.get("pk")])
 
 
 class AdDeleteView(LoginRequiredMixin, DeleteView):
     """Контроллер удаления объявления."""
+
     model = Ad
     context_object_name = "ad_delete"
     success_url = reverse_lazy("platform_for_sharing:home")
@@ -121,9 +128,9 @@ class AdDeleteView(LoginRequiredMixin, DeleteView):
         try:
             return super().get(request, *args, **kwargs)
         except Http404:
-            return render(request, 'platform_for_sharing/403_or_404.html', status=404)
+            return render(request, "platform_for_sharing/403_or_404.html", status=404)
         except PermissionDenied:
-            return render(request, 'platform_for_sharing/403_or_404.html', status=403)
+            return render(request, "platform_for_sharing/403_or_404.html", status=403)
 
     def get_form_class(self):
         user = self.request.user
@@ -134,6 +141,7 @@ class AdDeleteView(LoginRequiredMixin, DeleteView):
 
 class ExchangeProposalListView(LoginRequiredMixin, ListView):
     """Список всех предложений об обмене."""
+
     model = ExchangeProposal
     template_name = "platform_for_sharing/exchange_list.html"
     context_object_name = "exchanges"
@@ -142,21 +150,25 @@ class ExchangeProposalListView(LoginRequiredMixin, ListView):
         user = self.request.user
         context = super().get_context_data(**kwargs)
 
-        context["ad_sender_id"] = ExchangeProposal.objects.filter(ad_sender_id__user=user)
-        context["ad_receiver_id"] = ExchangeProposal.objects.filter(ad_receiver_id__user=user)
+        context["ad_sender_id"] = ExchangeProposal.objects.filter(
+            ad_sender_id__user=user
+        )
+        context["ad_receiver_id"] = ExchangeProposal.objects.filter(
+            ad_receiver_id__user=user
+        )
 
         return context
 
     def get_queryset(self):
         user = self.request.user
         return ExchangeProposal.objects.filter(
-            Q(ad_sender_id__user=user) |
-            Q(ad_receiver_id__user=user)
+            Q(ad_sender_id__user=user) | Q(ad_receiver_id__user=user)
         )
 
 
 class ExchangeProposalCreateView(LoginRequiredMixin, CreateView):
     """Представление создание обмена объявлениями."""
+
     model = ExchangeProposal
     template_name = "platform_for_sharing/exchange_create.html"
     context_object_name = "exchange"
@@ -166,15 +178,15 @@ class ExchangeProposalCreateView(LoginRequiredMixin, CreateView):
     def get_initial(self):
         """В GET запросе забираем pk объекта Ad и по дефолту устанавливаем в форме для обмена."""
         initial = super().get_initial()
-        ad_id = self.request.GET.get('ad_id')
+        ad_id = self.request.GET.get("ad_id")
         if ad_id:
-            initial['ad_receiver_id'] = ad_id
+            initial["ad_receiver_id"] = ad_id
         return initial
 
     def form_valid(self, form):
         """В GET запросе забираем pk объекта Ad и передаем в форму для создания."""
         if form.instance.pk is None:
-            ad_id = self.request.GET.get('ad_id')
+            ad_id = self.request.GET.get("ad_id")
             if ad_id:
                 form.instance.ad_receiver_id = Ad.objects.get(pk=ad_id)
         return super().form_valid(form)
@@ -183,12 +195,13 @@ class ExchangeProposalCreateView(LoginRequiredMixin, CreateView):
         """Передаем в форму текущего пользователя,
         чтобы предоставить выбор на обмен товаров текущего пользователя."""
         kwargs = super().get_form_kwargs()
-        kwargs['user'] = self.request.user
+        kwargs["user"] = self.request.user
         return kwargs
 
 
 class ExchangeProposalDetailView(LoginRequiredMixin, DetailView):
     """Представление просмотра обмена."""
+
     model = ExchangeProposal
     template_name = "platform_for_sharing/exchange_detail.html"
     context_object_name = "exchange"
@@ -198,14 +211,17 @@ class ExchangeProposalDetailView(LoginRequiredMixin, DetailView):
         exchange = self.object
 
         # Проверяем, что пользователь участвует в обмене
-        if request.user != exchange.ad_sender_id.user and request.user != exchange.ad_receiver_id.user:
+        if (
+            request.user != exchange.ad_sender_id.user
+            and request.user != exchange.ad_receiver_id.user
+        ):
             return HttpResponseForbidden()
 
-        action = request.POST.get('action')
+        action = request.POST.get("action")
 
-        if action == 'accept':
+        if action == "accept":
             # Меняем статус
-            exchange.status = 'принят'
+            exchange.status = "принят"
             # Меняем местами ad_sender_id и ad_receiver_id
             sender = Ad.objects.get(pk=exchange.ad_sender_id.pk)
             sender.user = exchange.ad_receiver_id.user
@@ -214,15 +230,16 @@ class ExchangeProposalDetailView(LoginRequiredMixin, DetailView):
             receiver = Ad.objects.get(pk=exchange.ad_receiver_id.pk)
             receiver.user = exchange.ad_sender_id.user
             receiver.save()
-        elif action == 'reject':
-            exchange.status = 'отклонён'
+        elif action == "reject":
+            exchange.status = "отклонён"
 
         exchange.save()
-        return redirect('platform_for_sharing:exchange_list')
+        return redirect("platform_for_sharing:exchange_list")
 
 
 class AdViewSet(ModelViewSet):
     """Реализация представления через ViewSet (полный crud)"""
+
     serializer_class = AdCreateSerializer
     queryset = Ad.objects.all()
     permission_classes = (IsOwner,)
@@ -236,28 +253,32 @@ class AdViewSet(ModelViewSet):
 
 class AdListAPIView(ListAPIView):
     """Реализация просмотра через ListAPIView."""
+
     serializer_class = AdSerializer
     queryset = Ad.objects.all()
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
-    filterset_fields = ['category', 'condition']
-    search_fields = ['title', 'description']
+    filterset_fields = ["category", "condition"]
+    search_fields = ["title", "description"]
 
 
 class ExchangeProposalCreateAPIView(CreateAPIView):
     """Реализация представления через ViewSet (полный crud)"""
+
     serializer_class = ExchangeProposalSerializer
     queryset = ExchangeProposal.objects.all()
 
 
 class ExchangeProposalUpdateAPIView(UpdateAPIView):
     """Реализация представления через ViewSet (полный crud)"""
+
     serializer_class = ExchangeProposalUpdateSerializer
     queryset = ExchangeProposal.objects.all()
 
 
 class ExchangeProposalListAPIView(ListAPIView):
     """Реализация просмотра через ListAPIView."""
+
     serializer_class = ExchangeProposalSerializer
     queryset = ExchangeProposal.objects.all()
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['ad_sender_id', 'ad_receiver_id', 'status']
+    filterset_fields = ["ad_sender_id", "ad_receiver_id", "status"]

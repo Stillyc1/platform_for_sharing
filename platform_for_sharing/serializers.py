@@ -24,7 +24,12 @@ class ExchangeProposalSerializer(ModelSerializer):
 
     class Meta:
         model = ExchangeProposal
-        fields = ("id", "ad_sender_id", "ad_receiver_id", "comment",)
+        fields = (
+            "id",
+            "ad_sender_id",
+            "ad_receiver_id",
+            "comment",
+        )
 
 
 class ExchangeProposalUpdateSerializer(ModelSerializer):
