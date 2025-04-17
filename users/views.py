@@ -1,9 +1,13 @@
 from django.contrib.auth.views import LoginView
 from django.urls import reverse_lazy
-from django.views import View
 from django.views.generic import CreateView
+from rest_framework.generics import CreateAPIView, RetrieveAPIView
+from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from users.forms import LoginUserForm, CustomUserCreationForm
+from users.models import User
+from users.permissions import IsOwner
+from users.serializers import UserSerializer
 from users.services import UserIsNotAuthenticated
 
 
@@ -18,3 +22,23 @@ class RegisterView(UserIsNotAuthenticated, CreateView):
     template_name = 'users/register.html'
     form_class = CustomUserCreationForm
     success_url = reverse_lazy('platform_for_sharing:home')
+
+
+class UserCreateAPIView(CreateAPIView):
+    """Реализация представления регистрации пользователя, через CreateAPIView."""
+    serializer_class = UserSerializer
+    queryset = User.objects.all()
+    permission_classes = [AllowAny]
+
+    def perform_create(self, serializer):
+        """Хэшируем пароль при создании пользователя."""
+        user = serializer.save(is_active=True)
+        user.set_password(serializer.validated_data['password'])
+        user.save()
+
+
+class UserRetrieveAPIView(RetrieveAPIView):
+    """Реализация представления просмотра пользователя, через RetrieveAPIView."""
+    serializer_class = UserSerializer
+    queryset = User.objects.all()
+    permission_classes = [IsAuthenticated]

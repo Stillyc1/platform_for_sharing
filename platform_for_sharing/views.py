@@ -5,10 +5,17 @@ from django.http import HttpResponseForbidden, Http404
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy, reverse
 from django.views.generic import CreateView, ListView, DetailView, UpdateView, DeleteView
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
+from rest_framework.generics import ListAPIView, CreateAPIView, UpdateAPIView
+from rest_framework.viewsets import ModelViewSet
 
 from platform_for_sharing.forms import AdForm, ExchangeProposalForm
 from platform_for_sharing.models import Ad, ExchangeProposal
+from platform_for_sharing.serializers import AdSerializer, AdCreateSerializer, ExchangeProposalSerializer, \
+    ExchangeProposalUpdateSerializer
 from platform_for_sharing.services import AdUpdateOrDelete
+from users.permissions import IsOwner
 
 
 class HomeView(ListView):
@@ -212,3 +219,45 @@ class ExchangeProposalDetailView(LoginRequiredMixin, DetailView):
 
         exchange.save()
         return redirect('platform_for_sharing:exchange_list')
+
+
+class AdViewSet(ModelViewSet):
+    """Реализация представления через ViewSet (полный crud)"""
+    serializer_class = AdCreateSerializer
+    queryset = Ad.objects.all()
+    permission_classes = (IsOwner,)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)  # Присваиваем владельца
+
+    def get_queryset(self):
+        return Ad.objects.filter(user=self.request.user)
+
+
+class AdListAPIView(ListAPIView):
+    """Реализация просмотра через ListAPIView."""
+    serializer_class = AdSerializer
+    queryset = Ad.objects.all()
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_fields = ['category', 'condition']
+    search_fields = ['title', 'description']
+
+
+class ExchangeProposalCreateAPIView(CreateAPIView):
+    """Реализация представления через ViewSet (полный crud)"""
+    serializer_class = ExchangeProposalSerializer
+    queryset = ExchangeProposal.objects.all()
+
+
+class ExchangeProposalUpdateAPIView(UpdateAPIView):
+    """Реализация представления через ViewSet (полный crud)"""
+    serializer_class = ExchangeProposalUpdateSerializer
+    queryset = ExchangeProposal.objects.all()
+
+
+class ExchangeProposalListAPIView(ListAPIView):
+    """Реализация просмотра через ListAPIView."""
+    serializer_class = ExchangeProposalSerializer
+    queryset = ExchangeProposal.objects.all()
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['ad_sender_id', 'ad_receiver_id', 'status']
